@@ -1,0 +1,16 @@
+{
+  "name": "@hive/beekit-cli",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "hive-beekit": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts",
+    "dev": "tsup src/index.ts --watch",
+    "lint": "eslint 'src/**/*.ts'"
+  },
+  "dependencies": {
+    "commander": "^12.1.0"
+  }
+}

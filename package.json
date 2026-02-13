@@ -1,0 +1,22 @@
+{
+  "name": "hive-beekit",
+  "version": "0.1.0",
+  "description": "Toolkit + CLI for building Bluesky/OpenClaw bots that integrate with Hive",
+  "main": "index.js",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "lint": "turbo lint",
+    "build": "turbo build",
+    "test": "turbo test"
+  },
+  "keywords": [],
+  "author": "Dennis Yang",
+  "license": "MIT",
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ]
+}

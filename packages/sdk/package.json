@@ -1,0 +1,16 @@
+{
+  "name": "@hive/beekit-sdk",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -b",
+    "dev": "tsup src/index.ts --watch",
+    "lint": "eslint 'src/**/*.ts'",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@atproto/api": "^0.13.5"
+  }
+}
