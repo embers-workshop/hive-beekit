@@ -11,7 +11,11 @@
     "lint": "eslint 'src/**/*.ts'"
   },
   "dependencies": {
-    "commander": "^12.1.0",
-    "@hive/beekit-sdk": "workspace:*"
+    "@hive/beekit-sdk": "workspace:*",
+    "commander": "^12.1.0"
+  },
+  "devDependencies": {
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
   }
 }

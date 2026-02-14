@@ -12,5 +12,8 @@
   },
   "dependencies": {
     "@atproto/api": "^0.13.5"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
   }
 }

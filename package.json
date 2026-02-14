@@ -18,5 +18,9 @@
   "workspaces": [
     "packages/*",
     "examples/*"
-  ]
+  ],
+  "devDependencies": {
+    "turbo": "^2.8.8"
+  },
+  "packageManager": "pnpm@10.29.3"
 }

@@ -4,3 +4,6 @@ node_modules
 .DS_Store
 packages/*/dist
 examples/*/.env
+.turbo
+tsconfig.tsbuildinfo
+packages/*/tsconfig.tsbuildinfo
