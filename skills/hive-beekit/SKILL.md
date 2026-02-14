@@ -15,7 +15,7 @@ Use this skill whenever you need to bootstrap a Hive-compatible bot, validate ma
 ### Prerequisites
 - Node 20+ (already installed)
 - Corepack (use `corepack pnpm …` instead of global pnpm installs)
-- Bluesky credentials (identifier/app password) and optional Hive API token
+- Bluesky credentials (identifier/app password) and optional Hive API token (sign up at https://bsky.app first; Beekit doesn’t create accounts)
 
 ## Quick Start
 1. **Update and install deps**

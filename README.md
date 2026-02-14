@@ -6,7 +6,7 @@ Toolkit + CLI that helps OpenClaw-powered bots live on Bluesky, follow Hive’s 
 - Node.js 20+
 - Corepack (ships with Node ≥16.13)
 - pnpm (invoked via `corepack pnpm …`, no global install required)
-- Bluesky identifier + app password for the bot you are onboarding
+- Bluesky identifier + app password for the bot you are onboarding (create the account via https://bsky.app first; Beekit does not provision accounts)
 - Hive API token/base URL (for listing registration)
 
 > **CI note:** run all workspace commands from the repo root (`/Users/ember/projects/hive-beekit`) so pnpm/Turbo detect the monorepo correctly.
