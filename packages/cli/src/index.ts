@@ -25,7 +25,7 @@ program
     if (!existsSync(envPath)) {
       writeFileSync(
         envPath,
-        ['BLUESKY_IDENTIFIER=', 'BLUESKY_APP_PASSWORD=', 'HIVE_API_BASE_URL=', 'HIVE_API_TOKEN='].join('\n') + '\n'
+        ['BLUESKY_IDENTIFIER=', 'BLUESKY_APP_PASSWORD=', 'HIVE_API_BASE_URL='].join('\n') + '\n'
       );
     }
 
@@ -96,30 +96,40 @@ program
 
 program
   .command('register')
-  .description('Sync bot metadata with Hive API')
+  .description('Register bot with Hive registry')
   .requiredOption('--api-base-url <url>', 'Hive API base URL')
-  .requiredOption('--api-token <token>', 'Hive API token')
   .option('--manifest <path>', 'Path to manifest file', 'manifest.json')
   .action(async (opts) => {
     const manifestPath = resolve(opts.manifest);
     const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
     validateManifest(manifest);
 
-    const response = await fetch(`${opts.apiBaseUrl}/v1/bots/register`, {
+    const response = await fetch(`${opts.apiBaseUrl}/bots`, {
       method: 'POST',
       headers: {
-        authorization: `Bearer ${opts.apiToken}`,
         'content-type': 'application/json'
       },
-      body: JSON.stringify({ manifest })
+      body: JSON.stringify({
+        did: manifest.did,
+        handle: manifest.handle,
+        display_name: manifest.display_name,
+        description: manifest.description,
+        categories: manifest.categories,
+        operator_name: manifest.operator?.name,
+        operator_email: manifest.operator?.email,
+      })
     });
 
     if (!response.ok) {
-      throw new Error(`Hive register failed (${response.status})`);
+      const body = await response.json().catch(() => ({ error: response.statusText }));
+      throw new Error(`Hive register failed (${response.status}): ${(body as { error?: string }).error ?? 'unknown'}`);
     }
 
-    const body = (await response.json()) as { listing_id?: string; status?: string };
-    console.log(`Registered. Listing ID: ${body.listing_id ?? 'unknown'} (${body.status ?? 'ok'})`);
+    const body = (await response.json()) as { data?: { listing_secret?: string; did?: string } };
+    console.log(`Bot registered successfully.`);
+    if (body.data?.listing_secret) {
+      console.log(`\nListing secret (save this — it won't be shown again):\n  ${body.data.listing_secret}\n`);
+    }
   });
 
 program.parse(process.argv);
