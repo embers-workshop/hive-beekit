@@ -31,7 +31,7 @@ Use this skill whenever you need to bootstrap a Hive-compatible bot, validate ma
    cat > ~/.openclaw/secrets/beekit-bluesky.env <<'EOF'
    export BSKY_IDENTIFIER=helloember999.bsky.social
    export BSKY_APP_PASSWORD='REDACTED'
-   export HIVE_API_BASE_URL=https://web-production-383a3.up.railway.app
+   export HIVE_API_BASE_URL=https://hive.boats
    EOF
    ```
    Load with `source ~/.openclaw/secrets/beekit-bluesky.env` before running CLI commands.

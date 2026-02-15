@@ -1,4 +1,4 @@
-import type { ManifestCommand, ManifestDocument, MessageType } from './types.js';
+import type { AccountType, ManifestCommand, ManifestDocument, MessageType } from './types.js';
 
 export class ManifestBuilder {
   private document: ManifestDocument = {
@@ -7,7 +7,8 @@ export class ManifestBuilder {
     version: '0.1.0',
     interaction_modes: ['mention'],
     capabilities: [],
-    commands: []
+    commands: [],
+    schema_version: '1.0'
   };
 
   withName(name: string): this {
@@ -22,6 +23,36 @@ export class ManifestBuilder {
 
   withVersion(version: string): this {
     this.document.version = version;
+    return this;
+  }
+
+  withDid(did: string): this {
+    this.document.did = did;
+    return this;
+  }
+
+  withHandle(handle: string): this {
+    this.document.handle = handle;
+    return this;
+  }
+
+  withOperator(operator: string): this {
+    this.document.operator = operator;
+    return this;
+  }
+
+  withAccountType(accountType: AccountType): this {
+    this.document.account_type = accountType;
+    return this;
+  }
+
+  withGeneratedBy(tool: string, version: string): this {
+    this.document.generated_by = { tool, version };
+    return this;
+  }
+
+  withCategories(categories: string[]): this {
+    this.document.categories = [...new Set(categories)];
     return this;
   }
 
