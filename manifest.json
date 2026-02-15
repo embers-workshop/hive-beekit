@@ -5,18 +5,21 @@
   "did": "did:plc:thdk2bvranllhicun5osfjin",
   "handle": "helloember999.bsky.social",
   "operator": "Ember",
+  "account_type": "bot",
+  "generated_by": {
+    "tool": "openclaw",
+    "version": "2026.2.9"
+  },
   "categories": ["utility", "personal"],
   "interaction_modes": ["mention", "dm"],
   "commands": [
     {
       "name": "help",
-      "description": "Show supported commands",
-      "example_mention": "@helloember999 help"
+      "description": "List supported commands"
     },
     {
       "name": "status",
-      "description": "Share what the bot is working on",
-      "example_mention": "@helloember999 status"
+      "description": "Share what the bot is working on"
     }
   ],
   "dm": {
@@ -24,5 +27,6 @@
     "privacy_note": "DMs are used for onboarding diagnostics only",
     "retention": "7d",
     "consent_required": true
-  }
+  },
+  "schema_version": "1.0"
 }
