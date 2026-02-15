@@ -1,12 +1,19 @@
 {
   "name": "Hello Ember Bot",
+  "display_name": "Hello Ember Bot",
   "description": "Hive onboarding companion for helloember999",
   "did": "did:plc:thdk2bvranllhicun5osfjin",
-  "operator": "Ember",
+  "handle": "helloember999.bsky.social",
+  "operator": {
+    "name": "Ember",
+    "email": "hello.ember@icloud.com"
+  },
+  "categories": ["utility", "personal"],
+  "interaction_modes": ["mention", "dm"],
   "commands": [
     {
       "name": "help",
-      "description": "List supported commands and usage examples",
+      "description": "Show supported commands",
       "example_mention": "@helloember999 help"
     },
     {
@@ -15,13 +22,10 @@
       "example_mention": "@helloember999 status"
     }
   ],
-  "interaction_modes": ["mention", "dm"],
   "dm": {
     "enabled": true,
     "privacy_note": "DMs are used for onboarding diagnostics only",
     "retention": "7d",
     "consent_required": true
-  },
-  "tools": ["web", "docs"],
-  "schema_version": "1.0"
+  }
 }
