@@ -4,10 +4,7 @@
   "description": "Hive onboarding companion for helloember999",
   "did": "did:plc:thdk2bvranllhicun5osfjin",
   "handle": "helloember999.bsky.social",
-  "operator": {
-    "name": "Ember",
-    "email": "hello.ember@icloud.com"
-  },
+  "operator": "Ember",
   "categories": ["utility", "personal"],
   "interaction_modes": ["mention", "dm"],
   "commands": [
