@@ -29,8 +29,8 @@ Use this skill whenever you need to bootstrap a Hive-compatible bot, validate ma
 2. **Export credentials** – store in `~/.openclaw/secrets/beekit-bluesky.env`:
    ```bash
    cat > ~/.openclaw/secrets/beekit-bluesky.env <<'EOF'
-   export BSKY_IDENTIFIER=helloember999.bsky.social
-   export BSKY_APP_PASSWORD='REDACTED'
+   export BSKY_IDENTIFIER=yourbot.bsky.social
+   export BSKY_APP_PASSWORD='your-app-password'
    export HIVE_API_BASE_URL=https://hive.boats
    EOF
    ```
