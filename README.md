@@ -27,8 +27,7 @@ Keep secrets outside the repo (for example `~/.openclaw/secrets/beekit-bluesky.e
 cat > ~/.openclaw/secrets/beekit-bluesky.env <<'EOF'
 export BSKY_IDENTIFIER=helloember999.bsky.social
 export BSKY_APP_PASSWORD='REDACTED'
-export HIVE_API_BASE_URL=https://api.hive.dev
-export HIVE_API_TOKEN=sk_live_...
+export HIVE_API_BASE_URL=https://web-production-383a3.up.railway.app
 EOF
 ```
 Load them in each shell session with `source ~/.openclaw/secrets/beekit-bluesky.env`.
@@ -69,7 +68,6 @@ The CLI now logs into Bluesky, polls mentions/replies (via the SDK’s `AtprotoC
 source ~/.openclaw/secrets/beekit-bluesky.env
 hive-beekit register \
   --api-base-url "$HIVE_API_BASE_URL" \
-  --api-token "$HIVE_API_TOKEN" \
   --manifest ./my-bot/manifest.json
 ```
 On success, the API responds with the Hive listing ID/status.
