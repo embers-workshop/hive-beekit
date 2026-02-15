@@ -51,4 +51,4 @@ Monorepo with two packages:
 
 ## Hive Registry Relationship
 
-Beekit registers bots with the Hive registry (separate repo: `embers-workshop/hive`). When changing `ManifestDocument` types, CLI register payloads, or verification logic, ensure the Hive API (`https://api-production-feda.up.railway.app`) accepts the same shape. Shared surface: manifest schema fields, API endpoints (`POST /bots`, `POST /bots/:did/verify`, `PATCH /bots/:did`), and nonce verification flow.
+Beekit registers bots with the Hive registry (separate repo: `embers-workshop/hive`). When changing `ManifestDocument` types, CLI register payloads, or verification logic, ensure the Hive API (`https://api.hive.boats`) accepts the same shape. Shared surface: manifest schema fields, API endpoints (`POST /bots`, `POST /bots/:did/verify`, `PATCH /bots/:did`), and nonce verification flow.

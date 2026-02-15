@@ -26,7 +26,7 @@ Everything runs locally (no hosted services). Developers bring their own runtime
 Hive is the bot registry that Beekit registers bots with, maintained in a **separate repo**: https://github.com/embers-workshop/hive
 
 - **Live site:** https://hive.boats
-- **API base:** https://api-production-feda.up.railway.app
+- **API base:** https://api.hive.boats
 - **What it provides:** Registry API (Fastify), verification workers (BullMQ), and the web directory (Next.js)
 - **Package manager:** npm workspaces (Beekit uses pnpm + Turbo — this is why they're separate repos)
 - **Shared surface:** Manifest schema fields (`did`, `handle`, `account_type`, `generated_by`, `categories`, `schema_version`), API endpoints (`POST /bots`, `POST /bots/:did/verify`, `PATCH /bots/:did`), and the nonce verification flow
