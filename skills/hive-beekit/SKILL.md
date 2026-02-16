@@ -1,27 +1,27 @@
 ---
 name: hive-beekit
-description: Manage the Hive Beekit CLI + SDK when building or testing Bluesky bots for the Hive directory. Use when asked to install/update Beekit, scaffold bot projects, run the dev loop, post test content, or document onboarding steps for Hive/Bluesky operators.
+description: Manage the Hive Beekit CLI + SDK when building or testing Bluesky bots for the Hive directory. Use when asked to install/update Beekit, scaffold bot projects, run the dev loop, post test content, register with Hive, or use the SDK programmatically to handle Bluesky mentions and DMs.
 ---
 
 # Hive Beekit Skill
 
 ## Overview
-Hive Beekit lives at `/Users/ember/projects/hive-beekit`. It is a pnpm workspace that ships two packages:
-- `@hive/beekit-sdk` – reusable Bluesky/Hive helpers
-- `@hive/beekit-cli` – the CLI binary exposed as `hive-beekit`
+Hive Beekit lives at `{baseDir}/../..`. It is a pnpm workspace that ships two packages:
+- `@hive/beekit-sdk` – reusable Bluesky/Hive helpers (ATProto client, message router, command parser, manifest builder, OpenClaw adapter)
+- `@hive/beekit-cli` – the CLI binary for scaffolding, validating, and registering bots
 
-Use this skill whenever you need to bootstrap a Hive-compatible bot, validate manifests, run the local polling loop, or document Beekit usage for others.
+Use this skill to bootstrap Hive-compatible bots, validate manifests, run the local polling loop, register with Hive, or use the SDK to handle Bluesky messages programmatically.
 
 ### Prerequisites
-- Node 20+ (already installed)
+- Node 20+
 - Corepack (use `corepack pnpm …` instead of global pnpm installs)
-- Bluesky credentials (identifier/app password) and optional Hive API token (sign up at https://bsky.app first; Beekit doesn’t create accounts)
+- Bluesky credentials (identifier + app password; create the account at https://bsky.app first)
+- Hive API base URL for registration (`https://hive.boats`)
 
 ## Quick Start
-1. **Update and install deps**
+1. **Install and build**
    ```bash
-   cd /Users/ember/projects/hive-beekit
-   git pull
+   cd {baseDir}/../..
    corepack pnpm install
    corepack pnpm --filter @hive/beekit-sdk run build
    corepack pnpm --filter @hive/beekit-cli run build
@@ -35,66 +35,125 @@ Use this skill whenever you need to bootstrap a Hive-compatible bot, validate ma
    EOF
    ```
    Load with `source ~/.openclaw/secrets/beekit-bluesky.env` before running CLI commands.
-3. **Add the CLI to PATH (optional)** – you can invoke it via node directly:
-   ```bash
-   node packages/cli/dist/index.cjs --help
-   ```
-   or symlink to `~/bin/hive-beekit` if desired.
 
-## Core Workflows
+## CLI Workflows
 
 ### Scaffold a Bot Project
 ```bash
-node packages/cli/dist/index.cjs init \
+node {baseDir}/../../packages/cli/dist/index.cjs init \
   --name "My Bot" \
   --dir ~/bots/my-bot \
   --dm
 ```
-Creates `.env.example`, baseline `manifest.json`, and categories. Add any custom commands afterward.
 
-### Validate & Normalize Manifest
+### Validate Manifest
 ```bash
-node packages/cli/dist/index.cjs manifest --validate --dir ~/bots/my-bot
+node {baseDir}/../../packages/cli/dist/index.cjs manifest --validate --dir ~/bots/my-bot
 ```
-Rewrites `manifest.json` with normalized spacing and ensures it passes schema checks. Run before registering or pushing updates.
 
 ### Run the Dev Polling Loop
 ```bash
 source ~/.openclaw/secrets/beekit-bluesky.env
-node packages/cli/dist/index.cjs dev \
+node {baseDir}/../../packages/cli/dist/index.cjs dev \
   --identifier "$BSKY_IDENTIFIER" \
   --app-password "$BSKY_APP_PASSWORD"
 ```
-The SDK now connects to Bluesky, polls mentions/replies, and routes them through the message router. Add middleware/handlers in `packages/sdk/src` as needed.
 
 ### Register with Hive
 ```bash
-node packages/cli/dist/index.cjs register \
+source ~/.openclaw/secrets/beekit-bluesky.env
+node {baseDir}/../../packages/cli/dist/index.cjs register \
   --api-base-url "$HIVE_API_BASE_URL" \
   --manifest ~/bots/my-bot/manifest.json
 ```
-Ensure the manifest includes the public `manifest_url` Hive should crawl. Successful response echoes a listing ID / status.
 
-### Smoke-Test Posting (helper script)
-When you need to confirm creds or seed a diagnostic post:
+### Smoke-Test Posting
 ```bash
-cd packages/sdk
 source ~/.openclaw/secrets/beekit-bluesky.env
-node scripts/post.js "your post text here"
+node {baseDir}/../../packages/sdk/scripts/post.js "your post text here"
 ```
-`scripts/post.js` uses `@atproto/api` directly to post as the configured account.
 
-## Maintenance & Troubleshooting
-- **pnpm missing?** Corepack handles it. Use `corepack enable` only if you have write access to `/usr/local/bin`; otherwise stick to `corepack pnpm` prefixed commands.
-- **Bluesky auth failures** – double-check app password spelling (including symbols). The helper env file wraps the password in single quotes to preserve `#`.
-- **CLI build errors** – ensure `@hive/beekit-sdk` is built before the CLI so TypeScript output exists in `packages/sdk/dist`.
-- **Turbo errors about package manager** – root `package.json` already declares `"packageManager": "pnpm@10.29.3"`. When running `pnpm run build`, use `corepack pnpm run build` so `turbo` can find pnpm.
-- **Credential hygiene** – never commit `.env` or secrets. Keep helper files in `~/.openclaw/secrets/` or export ad-hoc vars in the shell session.
+## SDK Programmatic Usage
 
-## Updating Documentation
-When asked for "detailed instructions in the repo", edit `/Users/ember/projects/hive-beekit/README.md`:
-- Add/refresh **Prerequisites**, **Install**, **Usage** sections mirroring the workflows above.
-- Document the exact commands (`corepack pnpm install`, `hive-beekit init`, etc.).
-- Include notes on Corepack, pnpm, and where to place credentials.
+Import from the built SDK to use Beekit in your own scripts or OpenClaw sessions.
 
-Keep README examples in sync with the CLI flags so new operators can copy/paste without surprises.
+### BeekitClient — poll and handle messages
+```typescript
+import { BeekitClient, MessageRouter } from '@hive/beekit-sdk';
+
+const router = new MessageRouter();
+// Middleware filters/transforms messages; return null to drop
+router.use(async (msg) => msg.type === 'mention' ? msg : null);
+
+const client = new BeekitClient({
+  identifier: process.env.BSKY_IDENTIFIER!,
+  appPassword: process.env.BSKY_APP_PASSWORD!,
+  router,
+});
+
+const stop = await client.onMessage(async (msg) => {
+  // msg: { id, type, authorDid, text, metadata? }
+  console.log(`${msg.type} from ${msg.authorDid}: ${msg.text}`);
+});
+```
+
+### Command Parser — extract commands from message text
+```typescript
+import { parseCommand } from '@hive/beekit-sdk';
+
+const parsed = parseCommand('summarize {"url": "https://example.com"}');
+// { commandText: "summarize", payload: { url: "https://example.com" } }
+```
+
+### ManifestBuilder — generate manifest.json
+```typescript
+import { ManifestBuilder } from '@hive/beekit-sdk';
+
+const manifest = new ManifestBuilder()
+  .setName('My Bot')
+  .setDescription('Does useful things')
+  .setVersion('1.0.0')
+  .addInteractionMode('mention')
+  .addCapability('text-generation')
+  .addCommand({ name: 'help', description: 'Show available commands' })
+  .build();
+```
+
+### OpenClawAdapter — spawn OpenClaw sessions
+```typescript
+import { OpenClawAdapter } from '@hive/beekit-sdk';
+
+// CLI mode (default) — calls `openclaw sessions_spawn`
+const adapter = new OpenClawAdapter({ mode: 'cli' });
+const sessionId = await adapter.spawnSession('Summarize this thread');
+
+// HTTP mode — posts to OpenClaw's HTTP endpoint
+const httpAdapter = new OpenClawAdapter({
+  mode: 'http',
+  endpoint: 'http://127.0.0.1:8787/sessions_spawn',
+});
+```
+
+## Key Types
+```typescript
+type MessageType = 'mention' | 'reply' | 'dm';
+
+interface IncomingMessage {
+  id: string;
+  type: MessageType;
+  authorDid: string;
+  text: string;
+  metadata?: Record<string, unknown>;
+}
+
+interface ParsedCommand {
+  commandText: string;
+  payload?: Record<string, unknown>;
+}
+```
+
+## Troubleshooting
+- **Build order matters** — SDK must build before CLI (`corepack pnpm --filter @hive/beekit-sdk run build` first).
+- **Auth failures** — double-check app password (single-quote it in env files to preserve `#` and special chars).
+- **pnpm not found** — use `corepack pnpm` prefix; Corepack ships with Node 16.13+.
+- **Credentials** — never commit `.env` or secrets. Keep them in `~/.openclaw/secrets/`.
