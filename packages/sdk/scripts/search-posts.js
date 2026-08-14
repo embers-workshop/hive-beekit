@@ -22,18 +22,32 @@ async function main() {
   if (!identifier || !password) {
     throw new Error('Missing Bluesky credentials');
   }
+
+  const query = process.argv.slice(2).join(' ').trim();
+  if (!query) {
+    throw new Error('No search query provided');
+  }
+
   const agent = new BskyAgent({ service: 'https://bsky.social' });
   await agent.login({ identifier, password });
-  const text = process.argv.slice(2).join(' ');
-  if (!text) {
-    throw new Error('No post text provided');
-  }
-  await agent.post({
-    $type: 'app.bsky.feed.post',
-    text,
-    createdAt: new Date().toISOString(),
+  const { data } = await agent.app.bsky.feed.searchPosts({
+    q: query,
+    sort: 'latest',
+    limit: 20,
   });
-  console.log('Posted to Bluesky as', identifier);
+
+  for (const post of data.posts ?? []) {
+    console.log(JSON.stringify({
+      indexedAt: post.indexedAt,
+      author: post.author.handle,
+      uri: post.uri,
+      cid: post.cid,
+      text: post.record?.text ?? '',
+      likeCount: post.likeCount ?? 0,
+      replyCount: post.replyCount ?? 0,
+      liked: Boolean(post.viewer?.like),
+    }));
+  }
 }
 
 main().catch((err) => {

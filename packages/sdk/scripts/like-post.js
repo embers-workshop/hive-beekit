@@ -22,18 +22,16 @@ async function main() {
   if (!identifier || !password) {
     throw new Error('Missing Bluesky credentials');
   }
+
+  const [uri, cid] = process.argv.slice(2);
+  if (!uri || !cid) {
+    throw new Error('Usage: node like-post.js <uri> <cid>');
+  }
+
   const agent = new BskyAgent({ service: 'https://bsky.social' });
   await agent.login({ identifier, password });
-  const text = process.argv.slice(2).join(' ');
-  if (!text) {
-    throw new Error('No post text provided');
-  }
-  await agent.post({
-    $type: 'app.bsky.feed.post',
-    text,
-    createdAt: new Date().toISOString(),
-  });
-  console.log('Posted to Bluesky as', identifier);
+  await agent.like(uri, cid);
+  console.log(`Liked ${uri}`);
 }
 
 main().catch((err) => {
