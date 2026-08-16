@@ -12,6 +12,21 @@ export * from './atprotoClient.js';
 
 export interface BeekitClientOptions extends AtprotoClientOptions {
   router?: MessageRouter;
+  onPollError?: (error: unknown) => void;
+}
+
+function getErrorStatus(error: unknown): number | undefined {
+  if (!error || typeof error !== 'object' || !('status' in error)) {
+    return undefined;
+  }
+
+  const status = (error as { status?: unknown }).status;
+  return typeof status === 'number' ? status : undefined;
+}
+
+export function isTransientPollError(error: unknown): boolean {
+  const status = getErrorStatus(error);
+  return status === 429 || (status !== undefined && status >= 500 && status <= 599);
 }
 
 export class BeekitClient {
@@ -34,12 +49,21 @@ export class BeekitClient {
 
     const loop = async () => {
       while (!stopped) {
-        const messages = await this.atproto.pollMessages();
-        for (const message of messages) {
-          await this.router.route(message as IncomingMessage, handler);
+        try {
+          const messages = await this.atproto.pollMessages();
+          for (const message of messages) {
+            await this.router.route(message as IncomingMessage, handler);
+          }
+        } catch (error) {
+          if (!isTransientPollError(error)) {
+            throw error;
+          }
+          this.options.onPollError?.(error);
         }
 
-        await new Promise((resolve) => setTimeout(resolve, this.atproto.getPollIntervalMs()));
+        if (!stopped) {
+          await new Promise((resolve) => setTimeout(resolve, this.atproto.getPollIntervalMs()));
+        }
       }
     };
 

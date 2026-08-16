@@ -4,6 +4,15 @@ import { resolve } from 'node:path';
 import { Command } from 'commander';
 import { ManifestBuilder, validateManifest, BeekitClient } from '@hive/beekit-sdk';
 
+function getErrorStatus(error: unknown): number | undefined {
+  if (!error || typeof error !== 'object' || !('status' in error)) {
+    return undefined;
+  }
+
+  const status = (error as { status?: unknown }).status;
+  return typeof status === 'number' ? status : undefined;
+}
+
 const program = new Command();
 
 program
@@ -79,7 +88,12 @@ program
     const client = new BeekitClient({
       identifier: opts.identifier,
       appPassword: opts.appPassword,
-      pollIntervalMs: 5_000
+      pollIntervalMs: 5_000,
+      onPollError: (error) => {
+        const status = getErrorStatus(error);
+        const detail = status ? `HTTP ${status}` : 'unknown transient error';
+        console.warn(`Bluesky polling failed (${detail}); retrying in 5 seconds.`);
+      }
     });
 
     client.getRouter().use(async (message) => {
