@@ -54,6 +54,7 @@ export class AtprotoClient {
     }
 
     const newMessages: IncomingMessage[] = [];
+    const isInitialPoll = this.lastSeenIndexedAt === undefined;
     let newestIndexedAt = this.lastSeenIndexedAt ?? 0;
 
     for (const notification of data.notifications) {
@@ -68,6 +69,13 @@ export class AtprotoClient {
       }
 
       if (notification.reason !== 'mention' && notification.reason !== 'reply') {
+        continue;
+      }
+
+      // A short-lived CLI process starts without an in-memory watermark. On that
+      // first poll, Bluesky's read marker is the durable boundary; replaying read
+      // notifications would make every restart look like new activity.
+      if (isInitialPoll && notification.isRead) {
         continue;
       }
 
