@@ -24,9 +24,46 @@ function getErrorStatus(error: unknown): number | undefined {
   return typeof status === 'number' ? status : undefined;
 }
 
+const TRANSIENT_NETWORK_ERROR_CODES = new Set([
+  'EAI_AGAIN',
+  'ECONNREFUSED',
+  'ECONNRESET',
+  'ENETDOWN',
+  'ENETUNREACH',
+  'ETIMEDOUT',
+  'UND_ERR_BODY_TIMEOUT',
+  'UND_ERR_CONNECT_TIMEOUT',
+  'UND_ERR_HEADERS_TIMEOUT',
+  'UND_ERR_SOCKET',
+]);
+
+function hasTransientNetworkCause(error: unknown): boolean {
+  const seen = new Set<object>();
+  let current = error;
+
+  while (current && typeof current === 'object' && !seen.has(current)) {
+    seen.add(current);
+
+    if ('code' in current) {
+      const code = (current as { code?: unknown }).code;
+      if (typeof code === 'string' && TRANSIENT_NETWORK_ERROR_CODES.has(code)) {
+        return true;
+      }
+    }
+
+    current = 'cause' in current ? (current as { cause?: unknown }).cause : undefined;
+  }
+
+  return false;
+}
+
 export function isTransientPollError(error: unknown): boolean {
   const status = getErrorStatus(error);
-  return status === 429 || (status !== undefined && status >= 500 && status <= 599);
+  return (
+    status === 429 ||
+    (status !== undefined && status >= 500 && status <= 599) ||
+    hasTransientNetworkCause(error)
+  );
 }
 
 export class BeekitClient {
